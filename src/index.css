@@ -1,0 +1,132 @@
+@import 'tailwindcss';
+
+/*
+ * "Lab bench / oscilloscope" dark palette.
+ * Token names are kept from the first theme (paper = page, sheet = panel,
+ * ink = text, pen = annotations) so every component recolours from here.
+ * Plotly needs literal colours: figure colours are mirrored in
+ * src/components/theme.ts — keep both in sync.
+ */
+@theme {
+  --color-paper: #0a0e13;      /* page background: bench, blue-black */
+  --color-sheet: #111821;      /* instrument panels, boxes */
+  --color-screen: #050807;     /* CRT screen */
+  --color-ink: #e2e7ec;        /* main text */
+  --color-ink-soft: #98a4b2;   /* secondary text (≈ 7.5:1 on paper) */
+  --color-ink-faint: #5a6572;  /* disabled / "à venir" */
+  --color-rule: #243040;       /* thin rules and borders */
+  --color-rule-strong: #3a4859;/* box outlines that must read on a projector */
+  --color-pen: #f0b45c;        /* annotations: amber, like a scope's cursor readout */
+  --color-trace: #5ef0a0;      /* phosphor green: active tab, focus, scope trace */
+
+  /* trace colours, also used in text legends */
+  --color-ch1: #f2d24b;        /* scope CH1 yellow */
+  --color-ch2: #4fd6e6;        /* scope CH2 cyan */
+  --color-ml-blue: #4da6ff;
+  --color-ml-orange: #ff8a3d;
+  --color-ml-yellow: #f2c14e;
+  --color-ml-purple: #c486e6;
+
+  /* bundled with @fontsource (works offline); mono for numbers, units and instrument labels */
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-serif);
+  --font-mono: Consolas, 'Cascadia Mono', 'DejaVu Sans Mono', Menlo, ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    font-size: 17px; /* projector: body text at 17px */
+  }
+  body {
+    @apply bg-paper text-ink font-serif;
+    min-height: 100vh;
+    /*
+     * Graticule on the bench: 1 major division = 5 minor ones, like a scope
+     * screen. Very low contrast so it never competes with the content.
+     */
+    background-image:
+      linear-gradient(rgb(94 240 160 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(94 240 160 / 0.035) 1px, transparent 1px),
+      linear-gradient(rgb(152 164 178 / 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(152 164 178 / 0.025) 1px, transparent 1px);
+    background-size:
+      120px 120px,
+      120px 120px,
+      24px 24px,
+      24px 24px;
+    font-feature-settings: 'kern', 'liga';
+    text-rendering: optimizeLegibility;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  ::selection {
+    background: rgb(94 240 160 / 0.25);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-trace);
+    outline-offset: 2px;
+  }
+}
+
+/* Thin range input: a fader on a dark panel. */
+.thin-range {
+  appearance: none;
+  height: 2px;
+  background: var(--color-rule-strong);
+  cursor: pointer;
+}
+.thin-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-sheet);
+  border: 2px solid var(--color-trace);
+}
+.thin-range::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-sheet);
+  border: 2px solid var(--color-trace);
+}
+
+/* KaTeX: inherit the surrounding colour; scroll on phones. */
+.katex {
+  font-size: 1.08em;
+}
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.15rem 0;
+  margin: 0.5rem 0;
+}
+
+/* Plotly's mode bar on a dark figure */
+.js-plotly-plot .modebar-btn path {
+  fill: var(--color-ink-soft) !important;
+}
+.js-plotly-plot .modebar-btn:hover path,
+.js-plotly-plot .modebar-btn.active path {
+  fill: var(--color-trace) !important;
+}
+.js-plotly-plot .modebar {
+  background: transparent !important;
+}
+
+/* Mode présentation: everything one step larger for the projector. */
+html[data-presentation] {
+  font-size: 20px;
+}
+
+/* Loading placeholder: the trace is drawn, then starts again. */
+@keyframes trace {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
