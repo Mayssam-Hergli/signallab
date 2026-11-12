@@ -1,7 +1,7 @@
-/** Course header, as printed at the top of the handouts. */
-export const COURSE = {
-  title: 'Traitement du signal — Travaux pratiques',
-  subject: 'Traitement du signal',
+/** Site-wide header and credits (the courses themselves are in registry.ts). */
+export const SITE = {
+  title: 'SignalLab',
+  subtitle: 'Travaux pratiques MATLAB',
   group: 'IIA 3/2',
   school: 'INSAT',
   /** shown in the "À propos" footer */

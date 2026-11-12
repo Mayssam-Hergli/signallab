@@ -1,7 +1,9 @@
 /**
  * Left rail of the lab pages.
  *
- * - TP keys (like a scope's channel buttons) to switch TP.
+ * - Link back to the landing page, then the current course.
+ * - TP keys (like a scope's channel buttons) to switch TP — only the TPs of
+ *   the current course.
  * - The current TP's sections drawn as a stem plot turned on its side: one
  *   node per section on a vertical line. The section being read is lit
  *   (scroll-spy), the line is "charged" in green up to it.
@@ -9,12 +11,11 @@
  */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { COURSE } from '../labs/course'
-import { labs, type LabDef } from '../labs/registry'
-import { matlabUrl } from '../lib/useMatlabFile'
+import { coursePath, getCourse, labPath, type Lab } from '../labs/registry'
+import { matlabName, matlabUrl } from '../lib/useMatlabFile'
 
 /** Id of the section currently under the reading line (≈ 25 % from the top). */
-function useActiveSection(lab: LabDef): string | null {
+function useActiveSection(lab: Lab): string | null {
   const [active, setActive] = useState<string | null>(lab.sections[0]?.id ?? null)
 
   useEffect(() => {
@@ -56,10 +57,16 @@ function goTo(id: string) {
   el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' })
 }
 
-/** TP1 / TP2 / TP3 keys. */
-export function LabKeys({ current }: { current: LabDef }) {
+/** TP keys of the current course (TP 1 / TP 2 / TP 3, or TP 3 / TP 4). */
+export function LabKeys({ current }: { current: Lab }) {
+  const labs = getCourse(current.course)?.labs ?? [current]
   return (
-    <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Choisir le TP">
+    <div
+      className="grid gap-1.5"
+      style={{ gridTemplateColumns: `repeat(${Math.max(labs.length, 2)}, minmax(0, 1fr))` }}
+      role="group"
+      aria-label="Choisir le TP"
+    >
       {labs.map((lab) => {
         const on = lab.id === current.id
         const label = `TP ${lab.number}`
@@ -77,7 +84,7 @@ export function LabKeys({ current }: { current: LabDef }) {
         return (
           <Link
             key={lab.id}
-            to={`/tp/${lab.id}`}
+            to={labPath(lab)}
             aria-current={on ? 'page' : undefined}
             className={`border py-1 text-center font-mono text-[0.85rem] transition-colors ${
               on ? 'border-trace/70 bg-trace/[0.08] text-trace' : 'border-rule-strong text-ink-soft hover:border-ink-soft hover:text-ink'
@@ -91,19 +98,25 @@ export function LabKeys({ current }: { current: LabDef }) {
   )
 }
 
-export default function LabNav({ lab }: { lab: LabDef }) {
+export default function LabNav({ lab }: { lab: Lab }) {
   const active = useActiveSection(lab)
   const activeIndex = lab.sections.findIndex((s) => s.id === active)
   const n = lab.sections.length
+  const course = getCourse(lab.course)
 
   return (
     <nav aria-label={`Sections du TP ${lab.number}`} className="flex h-full flex-col">
       <Link to="/" className="font-mono text-[0.82rem] text-ink-soft hover:text-trace">
-        ← Sommaire
+        ← Accueil
       </Link>
-      <p className="mt-1 text-[0.85rem] text-ink-faint">
-        {COURSE.subject} · {COURSE.group}
-      </p>
+      {course && (
+        <Link
+          to={coursePath(course.id)}
+          className="mt-3 block border-l-2 border-trace/60 pl-2.5 text-[0.95rem] leading-snug font-semibold text-ink hover:text-trace"
+        >
+          {course.title}
+        </Link>
+      )}
 
       <div className="mt-6">
         <LabKeys current={lab} />
@@ -157,7 +170,7 @@ export default function LabNav({ lab }: { lab: LabDef }) {
           download
           className="mt-auto block border-t border-rule pt-4 font-mono text-[0.8rem] break-all text-ink-soft hover:text-trace"
         >
-          ↓ {lab.matlabFile}
+          ↓ {matlabName(lab.matlabFile)}
         </a>
       )}
     </nav>

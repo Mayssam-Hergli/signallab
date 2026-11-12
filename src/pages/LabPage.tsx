@@ -1,10 +1,11 @@
 import { Suspense, useEffect } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { COURSE } from '../labs/course'
-import { getLab, labHeading } from '../labs/registry'
+import { useParams, useSearchParams } from 'react-router-dom'
+import { SITE } from '../labs/course'
+import { getCourse, getLab, labHeading } from '../labs/registry'
 import { SectionErrorBoundary, SectionLoading } from '../components/Loading'
 import { usePresentation } from '../lib/presentation'
-import { matlabUrl } from '../lib/useMatlabFile'
+import { matlabName, matlabUrl } from '../lib/useMatlabFile'
+import NotFound from './NotFound'
 
 function SectionPlaceholder() {
   return <p className="border border-dashed border-rule px-5 py-8 text-center text-ink-soft italic">Section en préparation.</p>
@@ -33,22 +34,14 @@ function useScrollToSection(sectionId: string | null) {
 }
 
 export default function LabPage() {
-  const { labId } = useParams()
+  const { courseId, labSlug } = useParams()
   const [params] = useSearchParams()
-  const lab = getLab(labId)
+  const course = getCourse(courseId)
+  const lab = getLab(courseId, labSlug)
   const presentation = usePresentation()
   useScrollToSection(params.get('s'))
 
-  if (!lab) {
-    return (
-      <div className="py-16">
-        <h1 className="text-[1.8rem] font-bold">TP introuvable</h1>
-        <Link to="/" className="mt-4 inline-block underline">
-          Retour au sommaire
-        </Link>
-      </div>
-    )
-  }
+  if (!course || !lab) return <NotFound what="TP introuvable" />
 
   const Placeholder = lab.placeholder
 
@@ -56,14 +49,14 @@ export default function LabPage() {
     <article>
       <header className="mb-10 border-b border-rule-strong pb-4">
         <p className="font-mono text-[0.88rem] text-trace">
-          {COURSE.subject} — {COURSE.group} — {COURSE.school}
+          {course.title} — {SITE.group} — {SITE.school}
         </p>
         <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
           <h1 className="text-[2rem] leading-tight font-bold">{labHeading(lab)}</h1>
           <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
             {lab.matlabFile && lab.status === 'ready' && (
               <a href={matlabUrl(lab.matlabFile)} download className="text-[0.95rem] underline decoration-rule-strong hover:decoration-trace">
-                Télécharger <span className="font-mono">{lab.matlabFile}</span>
+                Télécharger <span className="font-mono">{matlabName(lab.matlabFile)}</span>
               </a>
             )}
             {!presentation.on && (

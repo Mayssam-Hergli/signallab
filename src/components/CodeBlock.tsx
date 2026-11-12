@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { findCell, findFunction, tokenizeLine, type TokenType } from '../lib/matlab'
-import { matlabUrl, useMatlabFile } from '../lib/useMatlabFile'
+import { matlabName, matlabUrl, useMatlabFile } from '../lib/useMatlabFile'
 import { InlineLoading } from './Loading'
 
 // MATLAB editor's dark-theme colours: keywords blue, comments green, strings purple.
@@ -29,7 +29,7 @@ function HighlightedLine({ line }: { line: string }) {
 }
 
 export interface CodeRef {
-  /** file name in public/matlab/ */
+  /** path relative to public/matlab/, course folder included: "traitement-du-signal/tp1_signaux_discrets.m" */
   file: string
   /** "%%" cell to show, by its number, e.g. "1.2" */
   cell?: string
@@ -46,6 +46,7 @@ type CodeBlockProps = CodeRef
  */
 export default function CodeBlock({ file, cell, fn }: CodeBlockProps) {
   const state = useMatlabFile(file)
+  const name = matlabName(file)
   const [copied, setCopied] = useState(false)
 
   const extract = useMemo(() => {
@@ -59,7 +60,7 @@ export default function CodeBlock({ file, cell, fn }: CodeBlockProps) {
   }, [state, cell, fn])
 
   if (state.status === 'loading') {
-    return <InlineLoading>Chargement de {file}…</InlineLoading>
+    return <InlineLoading>Chargement de {name}…</InlineLoading>
   }
   if (state.status === 'error' || !extract) {
     return (
@@ -67,8 +68,8 @@ export default function CodeBlock({ file, cell, fn }: CodeBlockProps) {
         {state.status === 'error'
           ? `Impossible de charger public/matlab/${file} (${state.message}).`
           : fn
-            ? `Fonction « ${fn} » introuvable dans ${file}.`
-            : `Section « %% ${cell} » introuvable dans ${file}.`}
+            ? `Fonction « ${fn} » introuvable dans ${name}.`
+            : `Section « %% ${cell} » introuvable dans ${name}.`}
       </p>
     )
   }
@@ -88,7 +89,7 @@ export default function CodeBlock({ file, cell, fn }: CodeBlockProps) {
     <div className="border border-rule-strong bg-screen">
       <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-rule bg-sheet px-4 py-1.5 text-[0.9rem]">
         <p>
-          <span className="font-mono">{file}</span>
+          <span className="font-mono">{name}</span>
           <span className="text-ink-soft">
             {' '}
             — lignes {extract.startLine} à {extract.endLine}
@@ -98,7 +99,7 @@ export default function CodeBlock({ file, cell, fn }: CodeBlockProps) {
           <button type="button" onClick={copy} className="underline decoration-rule-strong hover:decoration-trace">
             {copied ? 'Copié' : 'Copier'}
           </button>
-          <a href={matlabUrl(file)} download={file} className="underline decoration-rule-strong hover:decoration-trace">
+          <a href={matlabUrl(file)} download={name} className="underline decoration-rule-strong hover:decoration-trace">
             Télécharger le fichier .m
           </a>
         </p>

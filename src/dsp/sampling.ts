@@ -1,6 +1,6 @@
 /**
  * Sampling of a sine (TP1 §1.2) and Shannon reconstruction.
- * MATLAB reference: public/matlab/tp1_signaux_discrets.m, cell "%% 1.2".
+ * MATLAB reference: public/matlab/traitement-du-signal/tp1_signaux_discrets.m, cell "%% 1.2".
  */
 import { range } from './signals'
 

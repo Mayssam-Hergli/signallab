@@ -10,6 +10,12 @@ import { useEffect, useState } from 'react'
  */
 const cache = new Map<string, Promise<string>>()
 
+/** "automatique/tp4_pid.m" → "tp4_pid.m" (what the reader sees and saves). */
+export function matlabName(file: string): string {
+  return file.slice(file.lastIndexOf('/') + 1)
+}
+
+/** `file` is relative to public/matlab/, course folder included. */
 export function matlabUrl(file: string): string {
   // BASE_URL is './' (see vite.config.ts): relative to index.html, so it works
   // on GitHub Pages sub-paths too.

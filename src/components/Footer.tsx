@@ -1,13 +1,15 @@
-import { COURSE } from '../labs/course'
+import { SITE } from '../labs/course'
+import { courses } from '../labs/registry'
 
 /** "À propos": who made the site and how it relates to the MATLAB files. */
 export default function Footer() {
-  const [a, b, c] = COURSE.authors
+  const [a, b, c] = SITE.authors
+  const [ts, ae] = courses.map((course) => course.title.toLowerCase())
   return (
     <footer id="a-propos" className="mt-20 border-t border-rule pt-6 pb-10 text-[0.92rem] text-ink-soft">
       <h2 className="font-mono text-[0.85rem] text-trace">À propos</h2>
       <p className="mt-2 max-w-3xl leading-relaxed">
-        Travaux pratiques de {COURSE.subject.toLowerCase()} ({COURSE.group}, {COURSE.school}) repris à partir des scripts
+        Travaux pratiques de {ts} et d'{ae} ({SITE.group}, {SITE.school}) repris à partir des scripts
         MATLAB du cours : chaque figure est recalculée dans le navigateur, et l'onglet « Code MATLAB » affiche le fichier .m de
         référence, téléchargeable tel quel.
       </p>

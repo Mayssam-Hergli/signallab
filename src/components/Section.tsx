@@ -32,7 +32,8 @@ interface SectionProps {
 function Questions({ intro, items }: { intro?: ReactNode; items: Question[] }) {
   return (
     <blockquote className="mb-5 max-w-4xl border border-rule-strong bg-sheet px-5 py-3">
-      {intro && <p className="mb-1.5">{intro}</p>}
+      {/* div, not p: an intro may hold a figure (TP3: the handout's block diagram) */}
+      {intro && <div className="mb-1.5 space-y-3">{intro}</div>}
       <ol className="space-y-1">
         {items.map((q) => (
           <li key={q.id} className="flex gap-3">

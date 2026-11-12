@@ -1,6 +1,6 @@
 /**
  * Uniform (linear) mid-rise quantization (TP1 §1.3).
- * MATLAB reference: public/matlab/tp1_signaux_discrets.m, cell "%% 1.3".
+ * MATLAB reference: public/matlab/traitement-du-signal/tp1_signaux_discrets.m, cell "%% 1.3".
  */
 
 /**

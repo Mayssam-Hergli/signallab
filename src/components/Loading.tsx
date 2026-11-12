@@ -35,32 +35,42 @@ export function InlineLoading({ children }: { children: ReactNode }) {
   )
 }
 
+/** True when the section's code could not be downloaded (offline, or a new deployment replaced the files). */
+function isLoadError(error: Error): boolean {
+  return /dynamically imported module|Importing a module script failed|Loading chunk|ChunkLoadError|Failed to fetch/i.test(`${error.name} ${error.message}`)
+}
+
 /**
- * Catches a section that fails to load or to render (offline, or a new
- * deployment replaced the files) and offers to retry, instead of a blank page.
+ * Catches a section that fails to load or to render, instead of a blank
+ * page. A download failure offers to reload the page; an error while
+ * computing (some slider value the code did not handle) offers to reset
+ * the section to its default settings, without losing the rest of the page.
  */
-export class SectionErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-  state = { error: null as Error | null }
+export class SectionErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null; resets: number }> {
+  state = { error: null as Error | null, resets: 0 }
 
   static getDerivedStateFromError(error: Error) {
     return { error }
   }
 
   render() {
-    if (!this.state.error) return this.props.children
+    const { error, resets } = this.state
+    // key: a reset remounts the section with its default settings
+    if (!error) return <div key={resets}>{this.props.children}</div>
+    const load = isLoadError(error)
     return (
       <div role="alert" className="border border-pen/70 bg-pen/[0.05] px-5 py-4 text-pen">
-        <p className="font-semibold">Cette section n'a pas pu être chargée.</p>
+        <p className="font-semibold">{load ? "Cette section n'a pas pu être chargée." : 'Erreur de calcul dans cette section.'}</p>
         <p className="mt-1 text-[0.92rem]">
-          Vérifiez la connexion, puis rechargez la page.{' '}
-          <span className="font-mono text-[0.85rem] opacity-80">({this.state.error.message})</span>
+          {load ? 'Vérifiez la connexion, puis rechargez la page.' : 'Ces réglages ne sont pas pris en charge ; la section peut repartir des valeurs du TP.'}{' '}
+          <span className="font-mono text-[0.85rem] opacity-80">({error.message})</span>
         </p>
         <button
           type="button"
-          onClick={() => window.location.reload()}
+          onClick={() => (load ? window.location.reload() : this.setState((s) => ({ error: null, resets: s.resets + 1 })))}
           className="mt-3 border border-pen/70 px-3 py-1 font-mono text-[0.88rem] hover:bg-pen/10"
         >
-          Réessayer
+          {load ? 'Recharger la page' : 'Réinitialiser la section'}
         </button>
       </div>
     )

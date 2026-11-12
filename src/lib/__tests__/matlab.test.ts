@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { findCell, findFunction, splitCells, tokenizeLine } from '../matlab'
 
 const tp1 = readFileSync(
-  fileURLToPath(new URL('../../../public/matlab/tp1_signaux_discrets.m', import.meta.url)),
+  fileURLToPath(new URL('../../../public/matlab/traitement-du-signal/tp1_signaux_discrets.m', import.meta.url)),
   'utf8',
 )
 
@@ -77,7 +77,7 @@ describe('tokenizeLine', () => {
   })
 })
 
-const tp2 = readFileSync(fileURLToPath(new URL('../../../public/matlab/tp2_convolution.m', import.meta.url)), 'utf8')
+const tp2 = readFileSync(fileURLToPath(new URL('../../../public/matlab/traitement-du-signal/tp2_convolution.m', import.meta.url)), 'utf8')
 
 describe('tp2_convolution.m: cells and local functions', () => {
   it('finds every exercise cell by its number', () => {
