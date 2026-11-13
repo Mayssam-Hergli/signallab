@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { findCell } from '../../lib/matlab'
+import { findCell, findFunction } from '../../lib/matlab'
 import { allLabs, courses, getCourse, getLab, labPath, legacyLabPath, sectionHref } from '../registry'
 
 const PREFIX = { 'traitement-du-signal': 'ts-', automatique: 'ae-' } as const
@@ -10,7 +10,7 @@ const matlabPath = (file: string) => fileURLToPath(new URL(`../../../public/matl
 describe('registry: courses → labs → sections', () => {
   it('has the two courses, in order, with their TPs', () => {
     expect(courses.map((c) => c.id)).toEqual(['traitement-du-signal', 'automatique'])
-    expect(getCourse('traitement-du-signal')!.labs.map((l) => l.id)).toEqual(['ts-tp1', 'ts-tp2', 'ts-tp3'])
+    expect(getCourse('traitement-du-signal')!.labs.map((l) => l.id)).toEqual(['ts-tp1', 'ts-tp2', 'ts-tp3', 'ts-tp4'])
     expect(getCourse('automatique')!.labs.map((l) => l.id)).toEqual(['ae-tp3', 'ae-tp4'])
   })
 
@@ -70,6 +70,8 @@ describe('registry: courses → labs → sections', () => {
 
   it('every cell shown in the TP3 / TP4 code tabs exists in its .m file', () => {
     const cells: Record<string, string[]> = {
+      'traitement-du-signal/tp3_tfd.m': ['Q1', 'Q2', 'Q3', 'Q4', 'Q5-6', 'Q7-8', 'Q9-10', 'Q11', 'Q12'],
+      'traitement-du-signal/tp4_filtres.m': ['I.1', 'I.2', 'I.3', 'I.4', 'I.5', 'II'],
       'automatique/tp3_stabilite_precision.m': ['II.3-4', 'II.5', 'II.6', 'II.7', 'III.1-2', 'III.3', 'III.4', 'III.5', 'III.6'],
       'automatique/tp4_pid.m': ['III.1', 'III.1-2', 'III.3', 'III.4', 'IV', 'IV.7', 'IV.8'],
     }
@@ -77,5 +79,9 @@ describe('registry: courses → labs → sections', () => {
       const source = readFileSync(matlabPath(file), 'utf8')
       for (const cell of list) expect(findCell(source, cell), `${file} ${cell}`).toBeDefined()
     }
+    const tfd = readFileSync(matlabPath('traitement-du-signal/tp3_tfd.m'), 'utf8')
+    expect(findFunction(tfd, 'puissance2')).toBeDefined()
+    // "Q1" must not pick up "Q11"
+    expect(findCell(tfd, 'Q1')!.title.startsWith('Q1 ')).toBe(true)
   })
 })

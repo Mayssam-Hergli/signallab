@@ -3,6 +3,7 @@ import { aeTp4 } from './automatique/tp4'
 import { tsTp1 } from './traitement-du-signal/tp1'
 import { tsTp2 } from './traitement-du-signal/tp2'
 import { tsTp3 } from './traitement-du-signal/tp3'
+import { tsTp4 } from './traitement-du-signal/tp4'
 import type { Course, CourseId, Lab } from './types'
 
 /**
@@ -15,8 +16,8 @@ export const courses: Course[] = [
   {
     id: 'traitement-du-signal',
     title: 'Traitement du signal',
-    subtitle: 'Signaux discrets, échantillonnage, quantification, convolution',
-    labs: [tsTp1, tsTp2, tsTp3],
+    subtitle: 'Signaux discrets, échantillonnage, quantification, convolution, TFD, filtres numériques',
+    labs: [tsTp1, tsTp2, tsTp3, tsTp4],
   },
   {
     id: 'automatique',
